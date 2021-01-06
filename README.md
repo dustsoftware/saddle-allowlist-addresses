@@ -39,12 +39,29 @@ collecting this data.
 
 ## Off-chain voting on Snapshot
 
-The [Snapshot Labs](https://twitter.com/snapshotlabs) team was kind enough to
-export this data for us, special thanks to [fabien](https://twitter.com/bonustrack87).
-The data is available [here](snapshot.csv).
+The [Snapshot Labs](https://twitter.com/snapshotlabs) team exposes this data
+via an [API endpoint](https://hub.snapshot.page/api/voters?to=1601510400).  The
+output is available [here](snapshot.json).
+
+Special thanks to [fabien](https://twitter.com/bonustrack87) for his help with
+this.
 
 ## Staking SNX and minting sUSD (>$20)
 
 This data was also queried in Dune using the [Issued](https://docs.synthetix.io/contracts/source/contracts/Synth#issued)
 event emitted by the Synthetix contracts.  The query is available as a subquery
 [here](https://explore.duneanalytics.com/queries/16578/source).
+
+## Combining the results
+
+The combined results are available [here](addresses.csv) and were created by running the
+following commands:
+
+```bash
+# extract addresses, strip leading 0x, and lowercase
+jq -r .[].address snapshot.json | cut -c 3- | awk '{print tolower($0)}' > snapshot.processed
+# omit the csv header
+tail -n +2 dune.csv > dune.processed
+# omit duplicates
+sort -u snapshot.processed dune.processed > addresses.csv
+```
